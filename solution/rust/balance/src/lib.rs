@@ -105,7 +105,7 @@ fn get_keys_at_child_key_path(child_key: ChildKey, num_keys: u32) -> Vec<[u8; 32
 // so we can find our received transactions in blocks.
 // These are segwit version 0 pay-to-public-key-hash witness programs.
 // https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki#user-content-P2WPKH
-fn get_p2wpkh_program(pubkey: [u8; 33]) -> Vec<u8> {
+fn get_p2wpkh_program(pubkey: [u8; 33]) -> [u8; 22] {
     vec![]
 }
 
