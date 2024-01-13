@@ -1,4 +1,5 @@
 example_solution/balance_solution.py
 example_solution/spend_solution.py
+/solution/rust/**/target
 .mypy_cache
 __pycache__
