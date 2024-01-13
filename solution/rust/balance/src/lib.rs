@@ -35,6 +35,16 @@ struct SpendingTx {
     outpoint: [u8; 36],
 }
 
+// Decode a base58 string into an array of bytes
+fn base58_decode(base58_string: &str) -> Vec<u8> {
+    let base58_alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    // Convert Base58 string to a big integer
+    // Convert the integer to bytes
+    // Chop off the 32 checksum bits and return
+    // BONUS POINTS: Verify the checksum!
+    vec![]
+}
+
 // Deserialize the extended key bytes and return a JSON object
 // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#serialization-format
 // 4 byte: version bytes (mainnet: 0x0488B21E public, 0x0488ADE4 private; testnet: 0x043587CF public, 0x04358394 private)
@@ -51,6 +61,7 @@ fn deserialize_key(bytes: Vec<u8>) -> ExtendedKey {
 }
 
 // Derive the secp256k1 compressed public key from a given private key
+// BONUS POINTS: Implement ECDSA yourself and multiply you key by the generator point!
 fn derive_public_key_from_private(key: &[u8; 32]) -> [u8; 33] {
     [0; 33]
 }
@@ -128,6 +139,7 @@ pub fn run(rpc_cookie_filepath: &str) -> Result<(), Box<dyn Error>> {
 
 #[cfg(test)]
 mod unit_tests {
+    use super::base58_decode;
     use super::get_child_key_at_path;
     use super::deserialize_key;
     use super::get_p2wpkh_program;
@@ -137,8 +149,7 @@ mod unit_tests {
     fn test_child_key_at_path() {
         // Derivation Path: [Chain m]
         let extended_private_key = "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi";
-        let bytes = bs58::decode(extended_private_key).into_vec().unwrap();
-        let deserialized_key = deserialize_key(bytes);
+        let deserialized_key = deserialize_key(base58_decode(extended_private_key));
         let private_key: [u8; 32] = deserialized_key.key[1..].try_into().unwrap();
         let chaincode = deserialized_key.chaincode;
         assert_eq!(hex::encode(private_key), "e8f32e723decf4051aefac8e2c93c9c5b214313817cdb01a1494b917c8436b35");
