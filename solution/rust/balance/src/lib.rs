@@ -27,12 +27,21 @@ struct ChildKey {
 }
 
 // structures for capturing transactions from block scan
-pub struct OutgoingTx { // public since spend program will require it
+pub struct OutgoingTx {
     outpoint: [u8; 36],
+    witness_program: [u8; 22],
     value: f64,
 }
 struct SpendingTx {
     outpoint: [u8; 36],
+}
+
+// final wallet state struct
+pub struct WalletState {
+    utxos: Vec<OutgoingTx>,
+    witness_programs: Vec<[u8; 22]>,
+    public_keys: Vec<[u8; 33]>,
+    private_keys: Vec<[u8; 32]>,
 }
 
 // Decode a base58 string into an array of bytes
@@ -101,7 +110,7 @@ fn get_p2wpkh_program(pubkey: [u8; 33]) -> Vec<u8> {
 }
 
 // public function that will be called by `run` here as well as the spend program externally
-pub fn recover_wallet_state(extended_private_key: &str, cookie_filepath: &str) -> Result<Vec<OutgoingTx>, Box<dyn Error>> {
+pub fn recover_wallet_state(extended_private_key: &str, cookie_filepath: &str) -> Result<WalletState, Box<dyn Error>> {
     // Deserialize the provided extended private key
 
     // Derive the key and chaincode at the path in the descriptor (`84h/1h/0h/0`)
@@ -109,6 +118,9 @@ pub fn recover_wallet_state(extended_private_key: &str, cookie_filepath: &str) -
     // Get the child key at the derivation path
 
     // Compute 2000 private keys from the child key path
+    let private_keys = vec![];
+    let public_keys = vec![];
+    let witness_programs = vec![];
 
     // For each private key, collect compressed public keys and witness programs
 
@@ -126,7 +138,12 @@ pub fn recover_wallet_state(extended_private_key: &str, cookie_filepath: &str) -
     // Check every tx output for our own witness programs. These are coins we have received.
     // Keep track of UTXOs by outpoint so we can check if it was spent later
     // Return UTXOs
-    Ok(utxos)
+    Ok(WalletState {
+        utxos,
+        public_keys,
+        private_keys,
+        witness_programs,
+    })
 }
 
 pub fn run(rpc_cookie_filepath: &str) -> Result<(), Box<dyn Error>> {
