@@ -118,26 +118,25 @@ pub fn recover_wallet_state(extended_private_key: &str, cookie_filepath: &str) -
     // Get the child key at the derivation path
 
     // Compute 2000 private keys from the child key path
+    // For each private key, collect compressed public keys and witness programs
     let private_keys = vec![];
     let public_keys = vec![];
     let witness_programs = vec![];
-
-    // For each private key, collect compressed public keys and witness programs
 
     // Collect outgoing and spending txs from a block scan
     let mut outgoing_txs: Vec<OutgoingTx> = vec![];
     let mut spending_txs: Vec<SpendingTx> = vec![];
     let mut utxos: Vec<OutgoingTx> = vec![];
 
-    // start up bitcoin-core-rpc
+    // set up bitcoin-core-rpc
     let path = PathBuf::from(cookie_filepath);
     let rpc = Client::new("http://localhost:38332", Auth::CookieFile(path))?;
 
     // Scan blocks 0 to 300 for transactions
     // Check every tx input (witness) for our own compressed public keys. These are coins we have spent.
     // Check every tx output for our own witness programs. These are coins we have received.
-    // Keep track of UTXOs by outpoint so we can check if it was spent later
-    // Return UTXOs
+    // Keep track of outputs by their outpoint so we can check if it was spent later
+    // Return Wallet State
     Ok(WalletState {
         utxos,
         public_keys,
