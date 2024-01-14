@@ -135,7 +135,8 @@ pub fn recover_wallet_state(extended_private_key: &str, cookie_filepath: &str) -
     // Scan blocks 0 to 300 for transactions
     // Check every tx input (witness) for our own compressed public keys. These are coins we have spent.
     // Check every tx output for our own witness programs. These are coins we have received.
-    // Keep track of outputs by their outpoint so we can check if it was spent later
+    // Keep track of outputs by their outpoint so we can check if it was spent later by an input
+    // Collect outputs that have not been spent into a utxo set
     // Return Wallet State
     Ok(WalletState {
         utxos,
