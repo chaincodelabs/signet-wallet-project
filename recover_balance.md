@@ -41,8 +41,9 @@ You are allowed to write your wallet code in any of the following programming
 languages:
 
 - Python
-- NodeJS
+- C
 - C++
+- C#
 - Rust
 - Go
 
@@ -60,6 +61,10 @@ way to complete this project is to complete the obfuscated code template in
 [solution/python/balance.py](solution/python/balance.py). No other files need
 to be modified unless you want to start from scratch in Python or write in one
 of the other languages.
+
+There is also a Rust template in [solution/rust/balance/src](solution/rust/balance/src).
+If you choose to work in Rust you will need to modify [solution/run_balance.sh](solution/run_balance.sh)
+to execute the Rust code.
 
 You **MAY** import an ECDSA library to access constants like `G` or the order
 of the curve, but you **MAY NOT** use a Bitcoin-specific library to avoid implementing
