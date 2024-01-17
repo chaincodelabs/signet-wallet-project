@@ -4,8 +4,8 @@ fn main() {
     // Set up for RPC client on local and remote CI server
     let args: Vec<String> = env::args().collect();
     
-    // input the path to your local signet cookie file as the default to connect to RPC
-    // let mut cookie_filepath = r"/Users/shaanbatra/Library/Application Support/Bitcoin/signet/.cookie";
+    // Default Bitcoin Core cookie path
+    let mut cookie_filepath = r"~/.bitcoin/signet/.cookie";
     
     if args.len() > 1 {
         cookie_filepath = &args[1];

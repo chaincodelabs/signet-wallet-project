@@ -60,6 +60,10 @@ Like last week, the default language is Python and an obfuscated code template
 is yours to play with in [solution/python/spend.py](solution/python/spend.py).
 If you choose to write in a different language you MUST edit [solution/run_spend.sh](solution/run_spend.sh).
 
+There is also a Rust template in [solution/rust/spend/src](solution/rust/spend/src).
+If you choose to work in Rust you will need to modify [solution/run_spend.sh](solution/run_spend.sh)
+to execute the Rust code.
+
 You **MAY** import an ECDSA library to access constants like `G` or the order
 of the curve, and you **MAY** use an external library for message signing (although
 we encourage you to implement ECDSA signing yourself!). You **MAY NOT** use a

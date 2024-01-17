@@ -1,6 +1,6 @@
-// use balance;
+use balance;
 
 fn main() {
-    // balance::recover_wallet_state();
-    println!("Hello, world!");
+    let state = balance::recover_wallet_state();
+
 }
