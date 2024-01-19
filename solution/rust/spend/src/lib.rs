@@ -1,28 +1,22 @@
 #![allow(unused)]
-// Import necessary bitcoin primitives
-extern crate bitcoin;
+extern crate balance;
 use balance::WalletState;
 
 #[derive(Debug)]
-pub enum SpendError{
+pub enum SpendError {
     MissingCodeCantRun,
-
     // Add more relevant error variants
 }
 
 pub struct Utxo {
     script_pubkey: Vec<u8>,
-    amount: u32
+    amount: u32,
 }
 
 pub struct Outpoint {
     txid: [u8; 32],
-    index: u32
+    index: u32,
 }
-
-// Import core rpc client utils
-extern crate bitcoincore_rpc;
-use bitcoincore_rpc::{Auth, Client};
 
 // Given 2 compressed public keys as byte arrays, construct
 // a 2-of-2 multisig output script. No length byte prefix is necessary.

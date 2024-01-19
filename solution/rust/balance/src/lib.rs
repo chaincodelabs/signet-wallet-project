@@ -1,12 +1,5 @@
 #![allow(unused)]
-use std::path::PathBuf;
-
-// Import necessary bitcoin primitives
-extern crate bitcoin;
-
-// Import core rpc client utils
-extern crate bitcoincore_rpc;
-use bitcoincore_rpc::{Auth, Client, jsonrpc::{client, serde_json::Value}, RpcApi};
+use std::{path::PathBuf, process::Command};
 
 // Provided by administrator
 pub const WALLET_NAME: &str = "wallet_000";
@@ -18,13 +11,13 @@ pub enum BalanceError {
     // Add relevant error variants for various cases.
 }
 
-struct ExKey{
+struct ExKey {
     version: [u8; 4],
     depth: [u8; 1],
     finger_print: [u8; 4],
     child_number: [u8; 4],
     chaincode: [u8; 32],
-    key: [u8; 32]
+    key: [u8; 32],
 }
 
 // final wallet state struct
@@ -106,21 +99,19 @@ fn get_p2wpkh_program(pubkey: &[u8]) -> Vec<u8> {
 // https://github.com/bitcoin/bitcoin/blob/master/doc/bitcoin-conf.md#configuration-file-path
 // Examples: bcli("getblockcount")
 //            bcli("getblockhash 100")
-fn bcli(cmd: &str) -> Result<Value, BalanceError> {
-    // handle commands and arg splitting properly
-    let cmd: &str = cmd.split(' ').collect::<Vec<_>>()[0];
-    let args = [Value::Null];
-    let rpc = Client::new(
-        "local-host:signet-rpc-port",
-        Auth::CookieFile("cookie/file/path".into()),
-    )
-    .map_err(|_| BalanceError::MissingCodeCantRun)?;
+fn bcli(cmd: &str) -> Result<Vec<u8>, BalanceError> {
+    let args = cmd.split(' ').collect::<Vec<&str>>();
 
-    // Get the result
-    let result  = rpc.call(cmd, &args).map_err(|_| BalanceError::MissingCodeCantRun)?;
+    let result = Command::new("bitcoin-cli")
+        .args(&args)
+        .output()
+        .map_err(|_| BalanceError::MissingCodeCantRun)?;
 
-    // Return the Json encoding of the result
-    Ok(Value::Null)
+    if result.status.success() {
+        return Ok(result.stdout);
+    } else {
+        return Ok(result.stderr);
+    }
 }
 
 // public function that will be called by `run` here as well as the spend program externally

@@ -5,11 +5,5 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-# The swiss-army-knife bitcoin library. Provides all primitives of Bitcoin.
-# Checkout https://docs.rs/bitcoin/0.31.1/bitcoin/#available-feature-flags
-# for extra features you can use from the library.
-bitcoin = "0.31.1"
-
-# Bitcoin Core RPC client library.
-bitcoincore-rpc = "0.18.0"
+# Add you custom dependencies below
 
