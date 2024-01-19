@@ -2,12 +2,6 @@
 // Import necessary bitcoin primitives
 extern crate bitcoin;
 use balance::WalletState;
-use bitcoin::{
-    bip32::{Xpriv, Xpub},
-    script::PushBytesBuf,
-    Amount, OutPoint, PrivateKey, PublicKey, ScriptBuf, Transaction, TxIn, TxOut, Txid,
-    WitnessProgram,
-};
 
 #[derive(Debug)]
 pub enum SpendError{
@@ -16,39 +10,49 @@ pub enum SpendError{
     // Add more relevant error variants
 }
 
+pub struct Utxo {
+    script_pubkey: Vec<u8>,
+    amount: u32
+}
+
+pub struct Outpoint {
+    txid: [u8; 32],
+    index: u32
+}
+
 // Import core rpc client utils
 extern crate bitcoincore_rpc;
 use bitcoincore_rpc::{Auth, Client};
 
 // Given 2 compressed public keys as byte arrays, construct
 // a 2-of-2 multisig output script. No length byte prefix is necessary.
-fn create_multisig_script(keys: Vec<PublicKey>) -> ScriptBuf {
+fn create_multisig_script(keys: Vec<Vec<u8>>) -> Vec<u8> {
     unimplemented!("implement the logic")
 }
 
 // Given an output script as a byte array, compute the p2wsh witness program
 // This is a segwit version 0 pay-to-script-hash witness program.
 // https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki#p2wsh
-fn get_p2wsh_program(script: &[u8], version: Option<u32>) -> WitnessProgram {
+fn get_p2wsh_program(script: &[u8], version: Option<u32>) -> Vec<u8> {
     unimplemented!("implement the logic")
 }
 
 // Given an outpoint, return a serialized transaction input spending it
 // Use hard-coded defaults for sequence and scriptSig
-fn input_from_utxo(txid: Txid, index: u32) -> Vec<u8> {
+fn input_from_utxo(txid: &[u8], index: u32) -> Vec<u8> {
     unimplemented!("implement the logic")
 }
 
 // Given an output script and value (in satoshis), return a serialized transaction output
-fn output_from_options(script: ScriptBuf, value: u32) -> Vec<u8> {
+fn output_from_options(script: &[u8], value: u32) -> Vec<u8> {
     unimplemented!("implement the logic")
 }
 
-// Given a TxOut object, extract the public key hash from the output script
+// Given a Utxo object, extract the public key hash from the output script
 // and assemble the p2wpkh scriptcode as defined in BIP143
 // <script length> OP_DUP OP_HASH160 <pubkey hash> OP_EQUALVERIFY OP_CHECKSIG
 // https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki#specification
-fn get_p2wpkh_scriptcode(utxo: TxOut) -> Vec<u8> {
+fn get_p2wpkh_scriptcode(utxo: Utxo) -> Vec<u8> {
     unimplemented!("implement the logic")
 }
 
@@ -58,10 +62,10 @@ fn get_p2wpkh_scriptcode(utxo: TxOut) -> Vec<u8> {
 // We assume only a single input and two outputs,
 // as well as constant default values for sequence and locktime
 fn get_commitment_hash(
-    outpoint: OutPoint,
+    outpoint: Outpoint,
     scriptcode: &[u8],
     value: u32,
-    outputs: Vec<TxOut>,
+    outputs: Vec<Utxo>,
 ) -> Vec<u8> {
     // Version
 
@@ -89,7 +93,7 @@ fn get_commitment_hash(
 // Given a JSON utxo object and a list of all of our wallet's witness programs,
 // return the index of the derived key that can spend the coin.
 // This index should match the corresponding private key in our wallet's list.
-fn get_key_index(utxo: TxOut, programs: Vec<&str>) -> u32 {
+fn get_key_index(utxo: Utxo, programs: Vec<&str>) -> u32 {
     unimplemented!("implement the logic")
 }
 
@@ -99,7 +103,7 @@ fn get_key_index(utxo: TxOut, programs: Vec<&str>) -> u32 {
 // - Must have the SIGHASH_ALL byte (0x01) appended
 // - Must have a low s value as defined by BIP 62:
 //   https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#user-content-Low_S_values_in_signatures
-fn sign(privkey: PrivateKey, msg: Vec<u8>) -> Vec<u8> {
+fn sign(privkey: &[u8; 32], msg: Vec<u8>) -> Vec<u8> {
     // Keep signing until we produce a signature with "low s value"
     // We will have to decode the DER-encoded signature and extract the s value to check it
     // Format: 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S] [sighash]
@@ -110,7 +114,7 @@ fn sign(privkey: PrivateKey, msg: Vec<u8>) -> Vec<u8> {
 // compute the signature and assemble the serialized p2pkh witness
 // as defined in BIP 141 (2 stack items: signature, compressed public key)
 // https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki#specification
-fn get_p2wpkh_witness(privkey: PrivateKey, msg: Vec<u8>) -> Vec<u8> {
+fn get_p2wpkh_witness(privkey: &[u8; 32], msg: Vec<u8>) -> Vec<u8> {
     unimplemented!("implement the logic")
 }
 
@@ -119,7 +123,7 @@ fn get_p2wpkh_witness(privkey: PrivateKey, msg: Vec<u8>) -> Vec<u8> {
 // as defined in BIP 141
 // Remember to add a 0x00 byte as the first witness element for CHECKMULTISIG bug
 // https://github.com/bitcoin/bips/blob/master/bip-0147.mediawiki
-fn get_p2wsh_witness(privs: Vec<PrivateKey>, msg: Vec<u8>) -> Vec<u8> {
+fn get_p2wsh_witness(privs: Vec<&[u8; 32]>, msg: Vec<u8>) -> Vec<u8> {
     unimplemented!("implement the logic")
 }
 
@@ -128,22 +132,22 @@ fn get_p2wsh_witness(privs: Vec<PrivateKey>, msg: Vec<u8>) -> Vec<u8> {
 // suitable to broadcast with Bitcoin Core RPC.
 // https://en.bitcoin.it/wiki/Protocol_documentation#tx
 fn assemble_transaction(
-    inputs: Vec<TxIn>,
-    outputs: Vec<TxOut>,
+    inputs: Vec<Vec<u8>>,
+    outputs: Vec<Utxo>,
     witnesses: Vec<Vec<u8>>,
-) -> Transaction {
+) -> Vec<u8> {
     unimplemented!("implement the logic")
 }
 
 // Given arrays of inputs and outputs (no witnesses!) compute the txid.
 // Return the 32 byte txid as a *reversed* hex-encoded string.
 // https://developer.bitcoin.org/reference/transactions.html#raw-transaction-format
-fn get_txid(inputs: Vec<TxIn>, outputs: Vec<TxOut>) -> Txid {
+fn get_txid(inputs: Vec<Vec<u8>>, outputs: Vec<Utxo>) -> [u8; 32] {
     unimplemented!("implement the logic")
 }
 
 // Spend a p2wpkh utxo to a 2 of 2 multisig p2wsh and return the (txid, transaction) tupple
-pub fn spend_p2wpkh(wallet_state: &WalletState) -> Result<(Txid, Transaction), SpendError> {
+pub fn spend_p2wpkh(wallet_state: &WalletState) -> Result<([u8; 32], Vec<u8>), SpendError> {
     // FEE = 1000
     // AMT = 1000000
     // Choose an unspent coin worth more than 0.01 BTC
@@ -173,7 +177,7 @@ pub fn spend_p2wpkh(wallet_state: &WalletState) -> Result<(Txid, Transaction), S
 }
 
 // Spend a 2-of-2 multisig p2wsh utxo and return the transaction
-pub fn spend_p2wsh(wallet_state: &WalletState, txid: Txid) -> Result<Transaction, SpendError> {
+pub fn spend_p2wsh(wallet_state: &WalletState, txid: [u8; 32]) -> Result<Vec<Vec<u8>>, SpendError> {
     // COIN_VALUE = 1000000
     // FEE = 1000
     // AMT = 0
