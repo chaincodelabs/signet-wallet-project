@@ -1,18 +1,11 @@
-use std::env;
+use balance::{recover_wallet_state, EXTENDED_PRIVATE_KEY, WALLET_NAME};
 
 fn main() {
-    // Set up for RPC client on local and remote CI server
-    let args: Vec<String> = env::args().collect();
-    
     // Default Bitcoin Core cookie path
-    let mut cookie_filepath = r"~/.bitcoin/signet/.cookie";
-    
-    if args.len() > 1 {
-        cookie_filepath = &args[1];
-    }
-    
-    // Run the program in lib.rs and print any errors
-    if let Err(e) = balance::run(cookie_filepath) {
-        eprintln!("{}", e);
-    }
+    let cookie_filepath = "~/.bitcoin/signet/.cookie";
+
+    let wallet_state = recover_wallet_state(EXTENDED_PRIVATE_KEY, cookie_filepath).unwrap();
+    let balance = wallet_state.balance();
+
+    println!("Wallet Name: {} | Balance: {:.8}", WALLET_NAME, balance);
 }
