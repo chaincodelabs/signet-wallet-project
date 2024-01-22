@@ -1,7 +1,7 @@
 # Week 1: Recover Wallet State
 
 Challenge: given a descriptor and a blockchain, compute your confirmed wallet
-balance. Submit a program with your `xprv` hard-coded, execute the necessary
+balance. Submit a program with your `tprv` hard-coded, execute the necessary
 bitcoin-cli RPCs and return your wallet balance as float with 8 decimal places.
 
 We will run your program against Bitcoin Core synced to our private signet chain
@@ -11,7 +11,7 @@ descriptor into Bitcoin Core to check your own work as you develop the wallet lo
 
 ## Steps
 
-1. Decode the base58 `xprv` and extract the private key and chaincode
+1. Decode the base58 `tprv` and extract the private key and chaincode
 2. Derive the key and chaincode at the path in the descriptor (`84h/1h/0h/0`)
 3. Derive 2000 private keys from that path
 4. Compute the compressed public key for each private key

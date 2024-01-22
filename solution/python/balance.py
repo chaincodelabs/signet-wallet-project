@@ -76,10 +76,10 @@ def bcli(cmd: str):
 
 
 # Recover the wallet state from the blockchain:
-# - Parse xprv and path from descriptor and derive 2000 key pairs and witness programs
+# - Parse tprv and path from descriptor and derive 2000 key pairs and witness programs
 # - Request blocks 0-310 from Bitcoin Core via RPC and scan all transactions
 # - Return a state object with all the derived keys and total wallet balance
-def recover_wallet_state(xprv: str):
+def recover_wallet_state(tprv: str):
     # Generate all the keypairs and witness programs to search for
     privs = 
     pubs = 
